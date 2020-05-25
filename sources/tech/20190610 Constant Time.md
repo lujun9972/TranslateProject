@@ -39,7 +39,7 @@ But these are generic use cases for constants, they apply to any language. Let�
 
 To introduce the power of Go’s constants let’s try a little challenge: declare a _constant_ whose value is the number of bits in the natural machine word.
 
-We can’t use `unsafe.SizeOf` as it is not a constant expression. We could use a build tag and laboriously record the natural word size of each Go platform, or we could do something like this:
+~~We can’t use~~ `unsafe.Sizeof` ~~as it is not a constant expression~~[1][3]. We could use a build tag and laboriously record the natural word size of each Go platform, or we could do something like this:
 
 ```
 const uintSize = 32 << (^uint(0) >> 32 & 1)
@@ -63,7 +63,7 @@ Anding that with a number with one bit in the final position give us, the same t
 0000000000000000000000000000000011111111111111111111111111111111 & 1 = 1
 ```
 
-Finally we shift the number thirty two one place to the right, giving us 641.
+Finally we shift the number thirty two one place to the right, giving us 64[2][4].
 
 ```
 32 << 1 = 64
@@ -136,7 +136,7 @@ var (
 
 There are a few problems with this declaration. Firstly their type is `*os.File` not the respective `io.Reader` or `io.Writer` interfaces. People have long complained that this makes replacing them with alternatives problematic. However the notion of replacing these variables is precisely the point of this digression. Can you safely change the value of `os.Stdout` once your program is running without causing a data race?
 
-I argue that, in the general case, you cannot. In general, if something is unsafe to do, as programmers we shouldn’t let our users think that it is safe, [lest they begin to depend on that behaviour][3].
+I argue that, in the general case, you cannot. In general, if something is unsafe to do, as programmers we shouldn’t let our users think that it is safe, [lest they begin to depend on that behaviour][5].
 
 Could we change the definition of `os.Stdout` and friends so that they retain the observable behaviour of reading and writing, but remain immutable? It turns out, we can do this easily with constants.
 
@@ -164,7 +164,7 @@ func main() {
 }
 ```
 
-In fact this change causes only one compilation failure in the standard library.2
+In fact this change causes only one compilation failure in the standard library.[3][6]
 
 ## Sentinel error values
 
@@ -210,7 +210,7 @@ var myEOF = errors.New("EOF") // io/io.go line 38
 fmt.Println(myEOF == io.EOF)  // false
 ```
 
-Putting aside the effect of malicious actors in your code base the key design challenge with sentinel errors is they behave like _singletons_ , not _constants_. Even if we follow the exact procedure used by the `io` package to create our own EOF value, `myEOF` and `io.EOF` are not equal. `myEOF` and `io.EOF` are not fungible, they cannot be interchanged. Programs can spot the difference.
+Putting aside the effect of malicious actors in your code base the key design challenge with sentinel errors is they behave like _singletons_, not _constants_. Even if we follow the exact procedure used by the `io` package to create our own EOF value, `myEOF` and `io.EOF` are not equal. `myEOF` and `io.EOF` are not fungible, they cannot be interchanged. Programs can spot the difference.
 
 When you combine the lack of immutability, the lack of fungibility, the lack of equality, you have a set of weird behaviours stemming from the fact that sentinel error values in Go are not constant expressions. But what if they were?
 
@@ -277,5 +277,4 @@ Now we have all the pieces we need to make sentinel errors, like `io.EOF`, and `
 ```
 
     % git diff
-    diff --git a/src/io/io.go b/src/io/io.go
-    inde
+    diff --git a/src/io/io.go 
