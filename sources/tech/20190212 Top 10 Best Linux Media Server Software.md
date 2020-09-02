@@ -1,5 +1,5 @@
 [#]: collector: (lujun9972)
-[#]: translator: (kodark)
+[#]: translator: ( )
 [#]: reviewer: ( )
 [#]: publisher: ( )
 [#]: url: ( )
